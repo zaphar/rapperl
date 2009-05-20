@@ -9,7 +9,7 @@ value() ->
 
 shrink_strategies() ->
 	[decrease,
-    inscrease]
+    inscrease].
 
 shrink(Int, decrease) ->
 	Int - 1;
