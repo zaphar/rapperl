@@ -17,6 +17,9 @@
          filter_gen/2,
          execute/1]).
 
+-define(DEFAULT_TEST_COUNT,  100).
+-define(DEFAULT_SAMPLE_SIZE, 10).
+
 init() ->
 	{A, B, C} = now(),
 	random:seed(A, B, C),
@@ -27,23 +30,25 @@ check(Gen, Test) ->
 	do_check(Gen, Test, 100).
 check(Gen, Test, N) ->
 	io:format("Beginning Check~n", []),
-	do_check(Gen, Test, N).
+	do_check(Gen, Test, ?DEFAULT_TEST_COUNT).
 
 do_check(Gen, Test, 0) ->
 	io:format("~n", []),
 	ok;
 do_check(Gen, Test, N) ->
-	Result = Test(Gen:value()),
+	Value = Gen:value(),
+	Result = Test(Value),
 	case Result of
 		true ->
-			io:format(".", []);
+			io:format(".", []),
+			do_check(Gen, Test, N - 1);
 		false ->
-			io:format("!", [])
-	end,
-	do_check(Gen, Test, N - 1).
+			io:format("!", []),
+			{failed, Value}
+	end.
 
 sample(Generator) ->
-	sample(10, Generator).
+	sample(?DEFAULT_SAMPLE_SIZE, Generator).
 sample(Size, Generator) ->
 	Scaffold = lists:seq(1, Size),
 	[Generator:value() || _ <- Scaffold].
