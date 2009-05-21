@@ -1,83 +1,141 @@
 -module(test_suite).
 -include_lib("eunit/include/eunit.hrl").
+-compile(export_all).
 
-successful_test() ->
-   ok == rapperl:check(
+all_test_() ->
+	[?_assert(ok == successful())
+	,?_assert(ok /= failing())
+	,?_assert(ok == integer())
+	,?_assert(ok == integer_upper_limit())
+	,?_assert(ok == integer_lower_and_upper_limit())
+	,?_assert(ok == integer_negative_lower_limit())
+	,?_assert(ok == filter())
+	,?_assert(ok == pick())
+	,?_assert(sample())
+	,?_assert(empty_sample())
+	,?_assert(ok == prepare())].
+
+successful() ->
+   rapperl:check(
             rapperl:constant('_'),
 		      fun(_) -> true end).
 
-failing_test() ->
-   ok /= rapperl:check(
+failing() ->
+   rapperl:check(
 	         rapperl:constant('_'),
 				fun(_) -> false end).
 
-constant_test() ->
-	ok == rapperl:check(
+constant() ->
+	rapperl:check(
 	         rapperl:constant(0),
             fun(0) -> true;
                (_) -> false end).
 
-not_constant_test() ->
-	ok /= rapperl:check(
+not_constant() ->
+	rapperl:check(
 	         rapperl:constant(1),
             fun(0) -> true;
                (_) -> false end).
 
-integer_test() ->
-   ok == rapperl:check(
+integer() ->
+   rapperl:check(
 	         rapperl:int(),
 				fun(Val) -> is_integer(Val) end).
 
-integer_upper_limit_test() ->
-   ok == rapperl:check(
+integer_upper_limit() ->
+   rapperl:check(
             rapperl:int(10),
             fun(Val) -> is_integer(Val)
 				            and (Val =< 10) end).
 
-integer_lower_and_upper_limit_test() ->
-   ok == rapperl:check(
+integer_lower_and_upper_limit() ->
+   rapperl:check(
 	         rapperl:int(10, 20),
 				fun(Val) -> is_integer(Val)
 				            and (Val =< 20)
 								and (Val >= 10) end).
 
-integer_negative_lower_limit_test() ->
-   ok == rapperl:check(
+integer_negative_lower_limit() ->
+   rapperl:check(
 	         rapperl:int(-10, 10),
 				fun(Val) -> is_integer(Val)
-				            and (Val =< 0)
+				            and (Val =< 10)
 								and (Val >= -10) end).
 
-filter_test() ->
+filter() ->
 	Pred = fun({Elem, List}) -> lists:member(Elem, List) end,
-   ok == rapperl:check(
+   rapperl:check(
       rapperl:filter_gen(
          rapperl:tuple({rapperl:int(10),
                         rapperl:list(rapperl:int(10))}),
 			Pred),
 		Pred).
 
-pick_test() ->
-   ok == rapperl:check(
+pick() ->
+   rapperl:check(
       rapperl:list(rapperl:int()),
 		fun(Picks) ->
-		   PickGen = rapperl:pick_one(rapperl:constant(Picks)),
-			Pick    = PickGen:value(),
+		   Pick = rapperl:pop(rapperl:pick_one(rapperl:constant(Picks))),
 		   lists:member(Pick, Picks)
       end).
 
-sample_test() ->
+sample() ->
 	Sample = rapperl:sample(10, rapperl:int()),
    10 == length(Sample).
 
-empty_sample_test() ->
+empty_sample() ->
 	Sample = rapperl:sample(0, rapperl:int()),
 	0 == length(Sample).
 
 
-prepare_test() ->
+prepare() ->
    Check = rapperl:prepare(
 	           rapperl:constant(0),
               fun(0) -> true end),
-   ok == Check().
+   Check().
+
+
+dict() ->
+   rapperl:list(dict_element()).
+
+dict_element() ->
+	rapperl:tuple({
+	   rapperl:int(),
+	   rapperl:int()}).
+
+dict_check() ->
+	rapperl:check(
+	   dict(),
+		fun(AsListOrg) ->
+         FromList0 = dict:from_list(AsListOrg),
+			AsList0   = dict:to_list(FromList0),
+			FromList1 = dict:from_list(AsList0),
+			AsList1   = dict:to_list(FromList1),
+         lists:sort(AsList0) == lists:sort(AsList1)
+		end).
+
+dict_is_key() ->
+   IsKey = fun({{Key, _}, DictList}) ->
+	            Find = lists:keyfind(Key, 1, DictList),
+					Find /= false
+				end,
+   rapperl:check(
+	   rapperl:filter_gen(
+	      rapperl:tuple({dict_element(), dict()}),
+			IsKey),
+		fun({{Key, _}, DictList}) ->
+		   Dict = dict:from_list(DictList),
+			dict:is_key(Key, Dict)
+		end).
+
+
+
+
+
+
+
+
+
+
+
 

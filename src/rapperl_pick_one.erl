@@ -6,8 +6,7 @@
 value() ->
 	List    = ListGen:value(),
 	ListLen = length(List),
-	IndGen  = rapperl:int(0, ListLen),
-	Index   = IndGen:value(),
+	Index   = rapperl:pop(rapperl:int(0, ListLen)),
 	Element = lists:nth(Index, List).
 	
 shrink(Value) ->

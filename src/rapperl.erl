@@ -15,11 +15,12 @@
          tuple/1,
          constant/1]).
 
--export([pick_one/1,
+-export([pop/1,
+         pick_one/1,
          filter_gen/2,
          execute/1]).
 
--define(DEFAULT_TEST_COUNT,  100).
+-define(DEFAULT_TEST_COUNT,  1000).
 -define(DEFAULT_SAMPLE_SIZE, 10).
 
 init() ->
@@ -28,11 +29,14 @@ init() ->
 	ok.
 
 check(Gen, Test) ->
-	io:format("Beginning Check~n", []),
-	do_check(Gen, Test, 100).
+	check(Gen, Test, ?DEFAULT_TEST_COUNT).
 check(Gen, Test, N) ->
 	io:format("Beginning Check~n", []),
-	do_check(Gen, Test, ?DEFAULT_TEST_COUNT).
+	Start  = now(),
+	do_check(Gen, Test, N),
+	Finish = now(),
+	Diff   = timer:now_diff(Start, Finish),
+	io:format("Ran ~w tests in ~wms ~n", [N, N / 1000]).
 
 do_check(Gen, Test, 0) ->
 	io:format("~n", []),
@@ -78,6 +82,9 @@ constant(Val) ->
 
 filter_gen(Gen, Pred) ->
 	rapperl_filter:new(Gen, Pred).
+
+pop(Gen) ->
+	Gen:value().
 
 pick_one(ListGen) ->
 	rapperl_pick_one:new(ListGen).
