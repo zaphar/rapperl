@@ -3,6 +3,8 @@
 -export([init/0,
          check/2,
          check/3,
+			prepare/2,
+			prepare/3,
          sample/1,
          sample/2]).
 
@@ -46,6 +48,11 @@ do_check(Gen, Test, N) ->
 			io:format("!", []),
 			{failed, Value}
 	end.
+
+prepare(Gen, Test) ->
+	fun() -> rapperl:check(Gen, Test) end.
+prepare(Gen, Test, N) ->
+	fun() -> rapperl:check(Gen, Test, N) end.
 
 sample(Generator) ->
 	sample(?DEFAULT_SAMPLE_SIZE, Generator).

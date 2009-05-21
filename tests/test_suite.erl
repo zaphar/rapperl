@@ -73,3 +73,11 @@ sample_test() ->
 empty_sample_test() ->
 	Sample = rapperl:sample(0, rapperl:int()),
 	0 == length(Sample).
+
+
+prepare_test() ->
+   Check = rapperl:prepare(
+	           rapperl:constant(0),
+              fun(0) -> true end),
+   ok == Check().
+
