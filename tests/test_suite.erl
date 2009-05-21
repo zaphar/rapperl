@@ -10,6 +10,7 @@ all_test_() ->
 	,?_assert(ok == integer_lower_and_upper_limit())
 	,?_assert(ok == integer_negative_lower_limit())
 	,?_assert(ok == filter())
+	,?_assert(ok == map_check())
 	,?_assert(ok == pick())
 	,?_assert(sample())
 	,?_assert(empty_sample())
@@ -94,48 +95,33 @@ prepare() ->
               fun(0) -> true end),
    Check().
 
-
-dict() ->
-   rapperl:list(dict_element()).
+map_check() ->
+	rapperl:check(
+	   rapperl:map_gen(
+		   rapperl:int(),
+			fun(Int) -> -Int end),
+		fun({Org, Negated}) -> Negated  == -Org end).
 
 dict_element() ->
 	rapperl:tuple({
 	   rapperl:int(),
 	   rapperl:int()}).
 
+dict() ->
+   rapperl:map_gen(
+      rapperl:list(dict_element()),
+		fun(DictList) ->
+		   dict:from_list(DictList)
+		end).
+
 dict_check() ->
 	rapperl:check(
 	   dict(),
-		fun(AsListOrg) ->
-         FromList0 = dict:from_list(AsListOrg),
-			AsList0   = dict:to_list(FromList0),
+		fun({_, Dict}) ->
+			AsList0   = dict:to_list(Dict),
 			FromList1 = dict:from_list(AsList0),
 			AsList1   = dict:to_list(FromList1),
          lists:sort(AsList0) == lists:sort(AsList1)
 		end).
-
-dict_is_key() ->
-   IsKey = fun({{Key, _}, DictList}) ->
-	            Find = lists:keyfind(Key, 1, DictList),
-					Find /= false
-				end,
-   rapperl:check(
-	   rapperl:filter_gen(
-	      rapperl:tuple({dict_element(), dict()}),
-			IsKey),
-		fun({{Key, _}, DictList}) ->
-		   Dict = dict:from_list(DictList),
-			dict:is_key(Key, Dict)
-		end).
-
-
-
-
-
-
-
-
-
-
 
 

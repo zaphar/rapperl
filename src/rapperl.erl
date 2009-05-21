@@ -18,6 +18,7 @@
 -export([pop/1,
          pick_one/1,
          filter_gen/2,
+			map_gen/2,
          execute/1]).
 
 -define(DEFAULT_TEST_COUNT,  1000).
@@ -33,10 +34,11 @@ check(Gen, Test) ->
 check(Gen, Test, N) ->
 	io:format("Beginning Check~n", []),
 	Start  = now(),
-	do_check(Gen, Test, N),
+	Res = do_check(Gen, Test, N),
 	Finish = now(),
 	Diff   = timer:now_diff(Start, Finish),
-	io:format("Ran ~w tests in ~wms ~n", [N, N / 1000]).
+	io:format("Ran ~w tests in ~wms ~n", [N, N / 1000]),
+	Res.
 
 do_check(Gen, Test, 0) ->
 	io:format("~n", []),
@@ -82,6 +84,9 @@ constant(Val) ->
 
 filter_gen(Gen, Pred) ->
 	rapperl_filter:new(Gen, Pred).
+
+map_gen(Gen, Fun) ->
+	rapperl_map:new(Gen, Fun).
 
 pop(Gen) ->
 	Gen:value().
