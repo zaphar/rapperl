@@ -61,4 +61,31 @@ integer_negative_lower_limit_negative_upper_limit_range_test() ->
 	Range = lists:seq(-15, -5),
 	?assert(Ints == Range).
 
+fixed_list_size_test_() ->
+	None = rapperl:list([]),
+	One  = rapperl:list([rapperl:int()]),
+	Two  = rapperl:list([rapperl:int(), rapperl:int()]),
 
+   [?_assertEqual(0, length(rapperl:pop(None)))
+   ,?_assertEqual(1, length(rapperl:pop(One)))
+   ,?_assertEqual(2, length(rapperl:pop(Two)))].
+
+fixed_list_elements_test() ->
+   List = rapperl:pop(
+             rapperl:list([
+                rapperl:constant(first),
+                rapperl:constant(second)])),
+   ?assertEqual([first, second], List).
+
+dynamic_list_members_test() ->
+   Samples   = rapperl:sample(rapperl:list(rapperl:int(10))),
+	UniqElems = ordsets:from_list(lists:flatten(Samples)),
+   Range     = lists:seq(0, 10),
+   ?assertEqual(Range, UniqElems).
+
+tuple_elements_test() ->
+   Tuple = rapperl:pop(
+              rapperl:tuple({
+                 rapperl:constant(first),
+                 rapperl:constant(second)})),
+   ?assertEqual({first, second}, Tuple).
