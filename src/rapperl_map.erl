@@ -3,5 +3,5 @@
 -export([value/0]).
 
 value() ->
-	Val = rapperl:pop(Gen),
-	{Val, Fun(Val)}.
+   Val = rapperl:pop(Gen),
+   {Val, Fun(Val)}.

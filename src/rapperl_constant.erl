@@ -6,4 +6,4 @@
 % Always produce the value this generator was instatiated with.
 %
 value() ->
-	ConstantValue.
+   ConstantValue.

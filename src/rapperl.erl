@@ -77,15 +77,15 @@ sample(Generator) ->
 sample(Size, Generator) ->
    Scaffold = lists:seq(1, Size),
    Sample   = [Generator:value() || _ <- Scaffold],
-	lists:sort(Sample).
+   lists:sort(Sample).
 
 %
 % Sample a generator and return unique values
 %
 sample_unique(Generator) ->
-	ordsets:from_list(sample(Generator)).
+   ordsets:from_list(sample(Generator)).
 sample_unique(Size, Generator) ->
-	ordsets:from_list(sample(Size, Generator)).
+   ordsets:from_list(sample(Size, Generator)).
 
 %
 % Integer generator instantiators
@@ -95,7 +95,7 @@ int() ->
 int(To) when To < 0 ->
    rapperl_int:new(To, 0);
 int(To) ->
-	rapperl_int:new(0, To).
+   rapperl_int:new(0, To).
 int(From, To) ->
    rapperl_int:new(From, To).
 

@@ -7,10 +7,10 @@
 % generator was instatiated with.
 %
 value() ->
-	adjust(random:uniform(range_span())).
+   adjust(random:uniform(range_span())).
 
 range_span() ->
-	(To - From) + 1.
+   (To - From) + 1.
 
 adjust(Val) ->
-	(Val - 1) + From.
+   (Val - 1) + From.
