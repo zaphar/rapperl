@@ -16,6 +16,8 @@
 -export([int/0,
          int/1,
          int/2,
+         bool/0,
+         bool/3,
          list/1,
          tuple/1,
          constant/1,
@@ -98,6 +100,13 @@ int(To) ->
    rapperl_int:new(0, To).
 int(From, To) ->
    rapperl_int:new(From, To).
+%
+% Boolean generator instantiator
+%
+bool() ->
+	bool(true, 1, 2).
+bool(Bool, In, OutOf) ->
+	rapperl_bool:new(Bool, In, OutOf).
 
 %
 % List generator instantiator
