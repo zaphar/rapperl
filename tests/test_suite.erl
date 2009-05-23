@@ -14,6 +14,7 @@ all_test_() ->
 	,?_assert(ok == pick())
 	,?_assert(sample())
 	,?_assert(empty_sample())
+	,?_assert(ok == not_key_increases())
 	,?_assert(ok == prepare())].
 
 successful() ->
@@ -124,4 +125,22 @@ dict_check() ->
          lists:sort(AsList0) == lists:sort(AsList1)
 		end).
 
+not_key_increases() ->
+	rapperl:check(
+		rapperl:filter_gen(
+			rapperl:tuple({dict_element(), dict()}),
+			fun({{Key, _}, {_, Dict}}) ->
+			   not dict:is_key(Key, Dict)
+			end),
+		fun({{Key, Val}, {_, Dict}}) ->
+		   NewDict = dict:store(Key, Val, Dict),
+			dict:size(NewDict) == 1 + dict:size(Dict)
+		end).
 
+prop_store_increases_size() ->
+	?FORALL(Dict, dict(),
+	 ?LET(Key, dict_key(),
+	  ?IMPLIES(not dict:is_key(Key, Dict),
+	   ?LET(Val, dict_key(),
+	    ?LET(With, dict:store(Key, Val, Dict),
+	     dict:size(With) == 1 + dict:size(Dict)))))).
