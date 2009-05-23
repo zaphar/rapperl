@@ -7,4 +7,4 @@
 % generator was instatiated with.
 %
 value() ->
-	From + random:uniform(To - From).
+   From + random:uniform(To - From).

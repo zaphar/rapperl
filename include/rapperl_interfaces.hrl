@@ -1,4 +1,4 @@
--type generator       :: module().
+-type generator() :: module().
 -type test_function() :: fun((any()) -> bool()).
 -type check_result()  :: 'ok' | {error, atom()}.
 -type test_count()    :: pos_integer().
@@ -15,12 +15,11 @@
 
 -spec rapperl:pop(generator()) -> any().
 
--spec rapperl:int(none()) -> generator().
+-spec rapperl:int() -> generator().
 -spec rapperl:int(integer()) -> generator().
 -spec rapperl:int(integer(), integer()) -> generator().
 
--spec rapperl:list(generator()) -> generator().
--spec rapperl:list(list(generator())) -> generator().
+-spec rapperl:list(generator() | list(generator())) -> generator().
 
 -spec rapperl:tuple(tuple()) -> generator().
 
