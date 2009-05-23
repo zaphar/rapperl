@@ -2,128 +2,63 @@
 -include_lib("eunit/include/eunit.hrl").
 -compile(export_all).
 
-all_test_() ->
-   [?_assert(ok == successful())
-   ,?_assert(ok /= failing())
-   ,?_assert(ok == integer())
-   ,?_assert(ok == integer_upper_limit())
-   ,?_assert(ok == integer_lower_and_upper_limit())
-   ,?_assert(ok == integer_negative_lower_limit())
-   ,?_assert(ok == filter())
-   ,?_assert(ok == map_check())
-   ,?_assert(sample())
-   ,?_assert(empty_sample())
-   ,?_assert(ok == not_key_increases())
-   ,?_assert(ok == prepare())].
+constant_test() ->
+	?assert([0] == ordsets:from_list(rapperl:sample(100, rapperl:constant(0)))).
 
-successful() ->
-   rapperl:check(
-            rapperl:constant('_'),
-            fun(_) -> true end).
+integer_test() ->
+	?assert(is_integer(rapperl:pop(rapperl:int()))).
 
-failing() ->
-   rapperl:check(
-            rapperl:constant('_'),
-            fun(_) -> false end).
+integer_upper_limit_member_test() ->
+	Ints = ordsets:from_list(rapperl:sample(100, rapperl:int(10))),
+	?assert(ordsets:is_element(10, Ints)).
 
-constant() ->
-   rapperl:check(
-            rapperl:constant(0),
-            fun(0) -> true;
-               (_) -> false end).
+integer_upperl_limit_range_test() ->
+   Ints  = ordsets:from_list(rapperl:sample(100, rapperl:int(10))),
+   Range = lists:seq(0, 10),
+   ?assert(Ints == Range).
+   
+integer_lower_and_upper_limit_members_test() ->
+	Ints = ordsets:from_list(rapperl:sample(100, rapperl:int(5, 15))),
+	LowerIsMember = ordsets:is_element(5, Ints),
+	UpperIsMember = ordsets:is_element(5, Ints),
+	?assert(LowerIsMember and UpperIsMember).
 
-not_constant() ->
-   rapperl:check(
-            rapperl:constant(1),
-            fun(0) -> true;
-               (_) -> false end).
+integer_lower_and_upper_limit_range_test() ->
+   Ints  = ordsets:from_list(rapperl:sample(100, rapperl:int(5, 15))),
+   Range = lists:seq(5, 15),
+   ?assert(Ints == Range).
 
-integer() ->
-   rapperl:check(
-            rapperl:int(),
-            fun(Val) -> is_integer(Val) end).
+integer_negative_lower_limit_member_test() ->
+	Ints = ordsets:from_list(rapperl:sample(100, rapperl:int(-10))),
+	LowerIsMember = ordsets:is_element(-10, Ints),
+	UpperIsMember = ordsets:is_element(0, Ints),
+	?assert(LowerIsMember and UpperIsMember).
 
-integer_upper_limit() ->
-   rapperl:check(
-            rapperl:int(10),
-            fun(Val) -> is_integer(Val)
-                        and (Val =< 10) end).
+integer_negative_lower_limit_range_test() ->
+	Ints  = ordsets:from_list(rapperl:sample(100, rapperl:int(-10))),
+	Range = lists:seq(-10, 0),
+	?assert(Ints == Range).
 
-integer_lower_and_upper_limit() ->
-   rapperl:check(
-            rapperl:int(10, 20),
-            fun(Val) -> is_integer(Val)
-                        and (Val =< 20)
-                        and (Val >= 10) end).
+integer_negative_lower_limit_positive_upper_limit_members_test() ->
+	Ints = ordsets:from_list(rapperl:sample(100, rapperl:int(-5, 5))),
+	LowerIsMember = ordsets:is_element(-5, Ints),
+	UpperIsMember = ordsets:is_element(5, Ints),
+	?assert(LowerIsMember and UpperIsMember).
 
-integer_negative_lower_limit() ->
-   rapperl:check(
-            rapperl:int(-10, 10),
-            fun(Val) -> is_integer(Val)
-                        and (Val =< 10)
-                        and (Val >= -10) end).
+integer_negative_lower_limit_positive_upper_limit_range_test() ->
+	Ints  = ordsets:from_list(rapperl:sample(100, rapperl:int(-5, 5))),
+	Range = lists:seq(-5, 5),
+	?assert(Ints == Range).
 
-filter() ->
-   Pred = fun({Elem, List}) -> lists:member(Elem, List) end,
-   rapperl:check(
-      rapperl:filter_gen(
-         rapperl:tuple({rapperl:int(10),
-                        rapperl:list(rapperl:int(10))}),
-         Pred),
-      Pred).
+integer_negative_lower_limit_negative_upper_limit_members_test() ->
+	Ints = ordsets:from_list(rapperl:sample(100, rapperl:int(-15, -5))),
+	LowerIsMember = ordsets:is_element(-15, Ints),
+	UpperIsMember = ordsets:is_element(-5, Ints),
+	?assert(LowerIsMember and UpperIsMember).
 
-sample() ->
-   Sample = rapperl:sample(10, rapperl:int()),
-   10 == length(Sample).
-
-empty_sample() ->
-   Sample = rapperl:sample(0, rapperl:int()),
-   0 == length(Sample).
+integer_negative_lower_limit_negative_upper_limit_range_test() ->
+	Ints  = ordsets:from_list(rapperl:sample(100, rapperl:int(-15, -5))),
+	Range = lists:seq(-15, -5),
+	?assert(Ints == Range).
 
 
-prepare() ->
-   Check = rapperl:prepare(
-              rapperl:constant(0),
-              fun(0) -> true end),
-   Check().
-
-map_check() ->
-   rapperl:check(
-      rapperl:map_gen(
-         rapperl:int(),
-         fun(Int) -> -Int end),
-      fun({Org, Negated}) -> Negated  == -Org end).
-
-dict_element() ->
-   rapperl:tuple({
-      rapperl:int(),
-      rapperl:int()}).
-
-dict() ->
-   rapperl:map_gen(
-      rapperl:list(dict_element()),
-      fun(DictList) ->
-         dict:from_list(DictList)
-      end).
-
-dict_check() ->
-   rapperl:check(
-      dict(),
-      fun({_, Dict}) ->
-         AsList0   = dict:to_list(Dict),
-         FromList1 = dict:from_list(AsList0),
-         AsList1   = dict:to_list(FromList1),
-         lists:sort(AsList0) == lists:sort(AsList1)
-      end).
-
-not_key_increases() ->
-   rapperl:check(
-      rapperl:filter_gen(
-         rapperl:tuple({dict_element(), dict()}),
-         fun({{Key, _}, {_, Dict}}) ->
-            not dict:is_key(Key, Dict)
-         end),
-      fun({{Key, Val}, {_, Dict}}) ->
-         NewDict = dict:store(Key, Val, Dict),
-         dict:size(NewDict) == 1 + dict:size(Dict)
-      end).

@@ -81,8 +81,10 @@ sample(Size, Generator) ->
 %
 int() ->
    rapperl_int:new(0, ?DEFAULT_MAX_INT).
+int(To) when To < 0 ->
+   rapperl_int:new(To, 0);
 int(To) ->
-   rapperl_int:new(0, To).
+	rapperl_int:new(0, To).
 int(From, To) ->
    rapperl_int:new(From, To).
 
