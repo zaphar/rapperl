@@ -9,6 +9,8 @@
          prepare/3,
          sample/1,
          sample/2,
+         sample_unique/1,
+         sample_unique/2,
          pop/1]).
 
 -export([int/0,
@@ -74,7 +76,16 @@ sample(Generator) ->
    sample(?DEFAULT_SAMPLE_SIZE, Generator).
 sample(Size, Generator) ->
    Scaffold = lists:seq(1, Size),
-   [Generator:value() || _ <- Scaffold].
+   Sample   = [Generator:value() || _ <- Scaffold],
+	lists:sort(Sample).
+
+%
+% Sample a generator and return unique values
+%
+sample_unique(Generator) ->
+	ordsets:from_list(sample(Generator)).
+sample_unique(Size, Generator) ->
+	ordsets:from_list(sample(Size, Generator)).
 
 %
 % Integer generator instantiators
