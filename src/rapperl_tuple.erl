@@ -1,37 +1,19 @@
--module(rapperl_tuple, [ElementGen]).
+-module(rapperl_tuple, [TupleGen]).
 
--export([value/0,
-         shrink/2,
-         shrink_strategies/0]).
+-export([value/0]).
 
 value() ->
-	gen_val(ElementGen).
+	gen_val(TupleGen).
 
 gen_val({}) ->
 	{};
-gen_val({Gen}) ->
-	{Gen:value()};
-gen_val({Gen0, Gen1}) ->
-	{Gen0:value(), Gen1:value()};
-gen_val({Gen0, Gen1, Gen2}) ->
-	{Gen0:value(), Gen1:value(), Gen2:value()};
-gen_val({Gen0, Gen1, Gen2, Gen3}) ->
-	{Gen0:value(), Gen1:value(), Gen2:value(), Gen3:value()}.
-
-shrink_strategies() ->
-	[all_elements].
-
-shrink({}, all_elements) ->
-	{};
-shrink({Val}, all_elements) ->
-	{Gen} = ElementGen,
-	{Gen:shrink(Val)};
-shrink({Val0, Val1}, all_elements) ->
-	{Gen0, Gen1} = ElementGen,
-	{Gen0:shrink(Val0), Gen1:shrink(Val1)};
-shrink({Val0, Val1, Val2}, all_elements) ->
-	{Gen0, Gen1, Gen2} = ElementGen,
-	{Gen0:shrink(Val0), Gen1:shrink(Val1), Gen2:shrink(Val2)};
-shrink({Val0, Val1, Val2, Val3}, all_elements) ->
-	{Gen0, Gen1, Gen2, Gen3} = ElementGen,
-	{Gen0:shrink(Val0), Gen1:shrink(Val1), Gen2:shrink(Val2), Gen3:shrink(Val3)}.
+gen_val({G}) ->
+	{rapperl:pop(G)};
+gen_val({G0, G1}) ->
+	{rapperl:pop(G0), rapperl:pop(G1)};
+gen_val({G0, G1, G2}) ->
+	{rapperl:pop(G0), rapperl:pop(G1), rapperl:pop(G2)};
+gen_val({G0, G1, G2, G3}) ->
+	{rapperl:pop(G0), rapperl:pop(G1), rapperl:pop(G2), rapperl:pop(G3)};
+gen_val({G0, G1, G2, G3, G4}) ->
+	{rapperl:pop(G0), rapperl:pop(G1), rapperl:pop(G2), rapperl:pop(G3), rapperl:pop(G4)}.

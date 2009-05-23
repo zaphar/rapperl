@@ -1,24 +1,12 @@
--module(rapperl_filter, [Generator, Predicate]).
+-module(rapperl_filter, [Gen, Pred]).
 
--export([value/0,
-         shrink/2,
-         shrink_strategies/0]).
+-export([value/0]).
 
 value() ->
-	value(false, undefined).
-
-value(false, undefined) ->
-	Val = Generator:value(),
-	value(Predicate(Val), Val);
-value(false, _Val) ->
-	io:format("x", []),
-	Val = Generator:value(),
-	value(Predicate(Val), Val);
+	Val = rapperl:pop(Gen),
+	value(Pred(Val), Val).
+value(false, _) ->
+	Val = rapperl:pop(Gen),
+	value(Pred(Val), Val);
 value(true, Val) ->
 	Val.
-
-shrink_strategies() ->
-	Generator:shrink_strategies().	
-
-shrink(Val, Strategy) ->
-	Generator:shrink(Val, Strategy).

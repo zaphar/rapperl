@@ -1,12 +1,9 @@
 -module(rapperl_constant, [ConstantValue]).
 
--export([value/0,
-         shrink/1]).
+-export([value/0]).
 
-% Always same value
+%
+% Always produce the value this generator was instatiated with.
+%
 value() ->
 	ConstantValue.
-
-% Value is constant, don't shrink
-shrink(Value) ->
-	Value.
