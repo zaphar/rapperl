@@ -100,3 +100,28 @@ map_test() ->
                   fun(Int) -> Int*2 end)),
 	Unique = ordsets:from_list(Sample),
    ?assertEqual([{1, 2},{2, 4}], Unique).
+
+successful_check_test() ->
+   Result = rapperl:check(
+               rapperl:constant('_'),
+               fun(_) -> true end),
+   ?assertEqual(ok, Result).
+
+failing_check_test() ->
+   Result = rapperl:check(
+               rapperl:constant('_'),
+               fun(_) -> false end),
+   ?assertMatch({error, _}, Result).
+
+successful_prepared_check_test() ->
+   Check = rapperl:prepare(
+              rapperl:constant('_'),
+              fun(_) -> true end),
+   ?assertEqual(ok, Check()).
+
+failing_prepared_check_test() ->
+   Check = rapperl:prepare(
+              rapperl:constant('_'),
+              fun(_) -> false end),
+   ?assertMatch({error, _}, Check()).
+

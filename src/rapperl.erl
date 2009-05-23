@@ -50,7 +50,7 @@ do_check(Gen, Test, N) ->
          do_check(Gen, Test, N - 1);
       false ->
          io:format("!", []),
-         {failed, Value}
+         {error, Value}
    end.
 
 %
