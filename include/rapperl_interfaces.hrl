@@ -13,6 +13,8 @@
 -spec rapperl:sample(generator()) -> sample_result().
 -spec rapperl:sample(test_count(), generator()) -> sample_result().
 
+-spec rapperl:shrink(generator(), test_function(), any()) -> any().
+
 -spec rapperl:pop(generator()) -> any().
 
 -spec rapperl:int() -> generator().
