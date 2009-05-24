@@ -75,6 +75,7 @@ shrink(Generator, Value) ->
    Strategies = Generator:shrink_strategies(),
    Applicable = filter_strategies(Generator, Value, Strategies),
    Strategy   = pick_strategy(Applicable),
+   %io:format("Using: ~w~n", [Strategy]),
    apply_strategy(Generator, Value, Strategy).
 
 shrink(Generator, Test, Value) ->
