@@ -5,20 +5,21 @@
         ,shrink/2]).
 
 value() ->
-   gen_val(TupleGen).
+   Size  = size(TupleGen),
+   Empty = erlang:make_tuple(Size, undefined),
+   gen_tuple(Empty, 1, Size).
 
-gen_val({}) ->
+gen_tuple(_, _, 0) ->
    {};
-gen_val({G}) ->
-   {rapperl:pop(G)};
-gen_val({G0, G1}) ->
-   {rapperl:pop(G0), rapperl:pop(G1)};
-gen_val({G0, G1, G2}) ->
-   {rapperl:pop(G0), rapperl:pop(G1), rapperl:pop(G2)};
-gen_val({G0, G1, G2, G3}) ->
-   {rapperl:pop(G0), rapperl:pop(G1), rapperl:pop(G2), rapperl:pop(G3)};
-gen_val({G0, G1, G2, G3, G4}) ->
-   {rapperl:pop(G0), rapperl:pop(G1), rapperl:pop(G2), rapperl:pop(G3), rapperl:pop(G4)}.
+gen_tuple(Tuple, Last, Last) ->
+   ElemGen  = element(Last, TupleGen),
+   NewElem  = rapperl:pop(ElemGen),
+   setelement(Last, Tuple, NewElem);
+gen_tuple(Tuple, Index, Last) ->
+   ElemGen  = element(Index, TupleGen),
+   NewElem  = rapperl:pop(ElemGen),
+   NewTuple = setelement(Index, Tuple, NewElem),
+   gen_tuple(NewTuple, Index + 1, Last).
 
 shrink_strategies() ->
    [shrink_all
