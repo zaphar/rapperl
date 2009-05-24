@@ -2,6 +2,9 @@
 -include_lib("eunit/include/eunit.hrl").
 -compile(export_all).
 
+aaaa_start_collect_server_hack_test() ->
+   rapperl:init().
+
 constant_test() ->
    ?assert([0] == rapperl:sample_unique(rapperl:constant(0))).
 

@@ -3,3 +3,4 @@
 -define(DEFAULT_LIST_SIZE, 100).
 -define(DEFAULT_MAX_INT, 1000).
 -define(DEFAULT_MAX_TRIES, 100).
+-define(COLLECT_SRV, rapperl_collect_server).

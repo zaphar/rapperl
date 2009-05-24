@@ -11,6 +11,8 @@
          sample/2,
          sample_unique/1,
          sample_unique/2,
+         collect/2,
+         collect_results/1,
          pop/1,
          shrink/2,
          shrink/3]).
@@ -32,6 +34,7 @@
 init() ->
    {A, B, C} = now(),
    random:seed(A, B, C),
+   {ok, _} = rapperl_collect_server:start_link(),
    ok.
 
 %
@@ -40,9 +43,13 @@ init() ->
 check(Gen, Test) ->
    check(Gen, Test, ?DEFAULT_TEST_COUNT).
 check(Gen, Test, N) ->
+   rapperl_collect_server:begin_run(),
    io:format("Beginning Check~n", []),
    Res = do_check(Gen, Test, N),
-   io:format("~nRan ~w tests~n", [N]),
+   io:format("~nRan, or should have ran, ~w tests~n", [N]),
+   CollectItems = rapperl_collect_server:items(),
+   io:format("Collected: ~w~n", [CollectItems]),
+   io:format("Fetch results with: rapperl:collect_results(Item)~n"),
    Res.
 
 do_check(Gen, Test, 0) ->
@@ -110,7 +117,9 @@ filter_strategies(Generator, Value, Strategies) ->
          Generator:shrinks_with(Strategy, Value)
       end,
       Strategies).
-
+%
+% Pick a strategy to use for shrinking
+%
 pick_strategy([]) ->
    none_applicable;
 pick_strategy([Strategy]) ->
@@ -118,7 +127,9 @@ pick_strategy([Strategy]) ->
 pick_strategy(Strategies) ->
    Index = rapperl:pop(rapperl:int(1, length(Strategies))),
    lists:nth(Index, Strategies).
-
+%
+% Shrink value using shrink strategy, if one was applicable
+%
 apply_strategy(Generator, Value, none_applicable) ->
    Value;
 apply_strategy(Generator, Value, Strategy) ->
@@ -148,6 +159,14 @@ sample_unique(Generator) ->
    ordsets:from_list(sample(Generator)).
 sample_unique(Size, Generator) ->
    ordsets:from_list(sample(Size, Generator)).
+
+%
+% Data collection during test runs
+%
+collect(Item, Value) ->
+   rapperl_collect_server:collect(Item, Value).
+collect_results(Item) ->
+   rapperl_collect_server:result(Item).
 
 %
 % Integer generator instantiators
