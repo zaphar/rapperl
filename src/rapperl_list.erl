@@ -34,7 +34,7 @@ shrinks_with(_, _) ->
 shrink(List, shrink_all) when is_list(ElementGen) ->
    ElemWithGen = lists:zip(ElementGen, List),
    [rapperl:shrink(Gen, Elem) || {Gen, Elem} <- ElemWithGen];
-% TODO - clean this up
+
 shrink(List, shrink_one) when is_list(ElementGen) ->
    Index = index_in_list(List),
    Gen   = lists:nth(Index + 1, ElementGen),
