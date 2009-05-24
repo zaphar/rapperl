@@ -12,6 +12,7 @@
          sample_unique/1,
          sample_unique/2,
          pop/1,
+         shrink/2,
          shrink/3]).
 
 -export([int/0,
@@ -70,22 +71,37 @@ prepare(Gen, Test, N) ->
 % Shrink a value to the smallest failing case
 %   Note that this is only a prototype
 % 
-shrink(Generator, Test, Value) ->
-   shrink(false, Generator, Test, Value, '_').
-% Cannot shrink more
-shrink(_, _, _, OldVal, OldVal) ->
-   OldVal;
-% Test was successful, last value was smallest failing case
-shrink(true, _, _, _, OldVal) ->
-   OldVal;
-% Test fails, shrink and retry
-shrink(false, Generator, Test, Value, _) ->
+shrink(Generator, Value) ->
    Strategies = Generator:shrink_strategies(),
    Applicable = filter_strategies(Generator, Value, Strategies),
    Strategy   = pick_strategy(Applicable),
-   NewVal     = apply_strategy(Generator, Value, Strategy),
+   apply_strategy(Generator, Value, Strategy).
+
+shrink(Generator, Test, Value) ->
+   shrink(false, Generator, Test, Value, '_', ?DEFAULT_MAX_TRIES).
+
+% Maximum number of tries exceeded
+% Return last failing input
+shrink(true, _, _, _, OldVal, 0) ->
+   OldVal;
+shrink(false, _, _, NewVal, _, 0) ->
+   NewVal;
+% Cannot shrink more, retry
+shrink(Success, Generator, Test, OldVal, OldVal, N) ->
+   NewVal     = shrink(Generator, OldVal),
+   NewSuccess = Test(NewVal),
+   shrink(NewSuccess, Generator, Test, NewVal, OldVal, N - 1);
+% Test was successful, last value was smallest failing case
+% Try to shrink last value further
+shrink(true, Generator, Test, _, OldVal, N) ->
+   NewVal  = shrink(Generator, OldVal),
+   Success = Test(NewVal),
+   shrink(Success, Generator, Test, NewVal, OldVal, N - 1);
+% Test fails, shrink and retry
+shrink(false, Generator, Test, Value, _, _) ->
+   NewVal     = shrink(Generator, Value),
    Successful = Test(NewVal),
-   shrink(Successful, Generator, Test, NewVal, Value).
+   shrink(Successful, Generator, Test, NewVal, Value, ?DEFAULT_MAX_TRIES).
 
 filter_strategies(Generator, Value, Strategies) ->
    lists:filter(
@@ -96,8 +112,11 @@ filter_strategies(Generator, Value, Strategies) ->
 
 pick_strategy([]) ->
    none_applicable;
-pick_strategy([H|_]) ->
-   H.
+pick_strategy([Strategy]) ->
+   Strategy;
+pick_strategy(Strategies) ->
+   Index = rapperl:pop(rapperl:int(1, length(Strategies))),
+   lists:nth(Index, Strategies).
 
 apply_strategy(Generator, Value, none_applicable) ->
    Value;
